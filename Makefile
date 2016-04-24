@@ -2,7 +2,7 @@
 #  Makefile for fltk applications
 #
 
-LIBS = -L/usr/local/lib/fltk1.3 -lfltk -lfltk_gl -lfltk_images -lfltk_forms -lXext -lX11 -lGL -lGLU -lpng -lz -lm
+LIBS = -L/usr/local/lib/fltk1.3 -lfltk -lfltk_gl -lfltk_images -lfltk_forms -lXext -lX11 -lGL -lGLU -lpng -lz -lm -ldl
 
 CFLAGS = -O1 -std=c++11
 
