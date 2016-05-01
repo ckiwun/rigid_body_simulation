@@ -16,6 +16,7 @@
 #include "mat.h"
 #include <FL/gl.h>
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -25,8 +26,19 @@ using namespace std;
 #define MAX_VEL 200
 #define MIN_STEP 0.1
 
+#define FPS 30
+#define FRAME_PERIOD 1.0f/FPS
+#define PCL_UNIT 1.0f
 
+double elapsed_time = 0;
+bool particlized = false;
 
+ParticleSystem* ps;
+namespace my_util{
+	std::default_random_engine random_generator;
+	std::function<double(void)> frand = std::bind(std::uniform_real_distribution<double>{}, random_generator);
+}
+using namespace my_util;
 
 
 // This is a list of the controls for the RobotArm
@@ -34,16 +46,11 @@ using namespace std;
 // of the controls from the user interface.
 enum RobotArmControls
 { 
-    BASE_ROTATION=0, LOWER_TILT, UPPER_TILT, CLAW_ROTATION,
-        BASE_LENGTH, LOWER_LENGTH, UPPER_LENGTH, PARTICLE_COUNT, NUMCONTROLS, 
+    BOX1_VEL=0, BOX2_VEL, PARTICLE_COUNT, NUMCONTROLS, 
 };
 
 void ground(float h);
 void base(float h);
-void rotation_base(float h);
-void lower_arm(float h);
-void upper_arm(float h);
-void claw(float h);
 void y_box(float h);
 Mat4f glGetMatrix(GLenum pname);
 Vec3f getWorldPoint(Mat4f matCamXforms);
@@ -94,13 +101,8 @@ void RobotArm::draw()
 {
 	/* pick up the slider values */
 
-	float theta = VAL( BASE_ROTATION );
-	float phi = VAL( LOWER_TILT );
-	float psi = VAL( UPPER_TILT );
-	float cr = VAL( CLAW_ROTATION );
-	float h1 = VAL( BASE_LENGTH );
-	float h2 = VAL( LOWER_LENGTH );
-	float h3 = VAL( UPPER_LENGTH );
+	float v1 = VAL( BOX1_VEL );
+	float v2 = VAL( BOX2_VEL );
 	float pc = VAL( PARTICLE_COUNT );
 
     // This call takes care of a lot of the nasty projection 
@@ -119,21 +121,54 @@ void RobotArm::draw()
 	static GLfloat lmodel_ambient[] = {0.4,0.4,0.4,1.0};
 
 	// define the model
+	cout << "elapsed time is " << elapsed_time << endl;
 
 	ground(-0.2);
 	glPushMatrix();
+		glTranslatef(0.0,0.0,-v1*elapsed_time);
 		glTranslatef(0.0,0.0,4.0);
 		base(2.0);
+		if(!particlized){ //push particleobject
+			std::vector<Particle> pc;
+			for(float z=-1.0;z<=1.0;z+=0.5)
+			for(float y=-1.0;y<=1.0;y+=0.5)
+			for(float x=-1.0;x<=1.0;x+=0.5){
+				pc.emplace_back(Vec3f(x,y+1.0,z+4.0),0.002,OBJECT);
+			}
+			//cout << "box 1 has " << pc.size() << "particles" << endl;
+			ps->po.emplace_back(pc,OBJECT,Vec3f(0,0,4),Vec3f(0,0,-v1),Vec3f(0,0,0));
+		}
 	glPopMatrix();
 	glPushMatrix();
+		glTranslatef(0.0,0.0,v2*elapsed_time);
 		glTranslatef(0.0,0.0,-4.0);
 		base(2.0);
+		if(!particlized){ //push particleobject
+			std::vector<Particle> pc;
+			for(float z=-1.0;z<=1.0;z+=0.5)
+			for(float y=-1.0;y<=1.0;y+=0.5)
+			for(float x=-1.0;x<=1.0;x+=0.5){
+				pc.emplace_back(Vec3f(x,y+1.0,z-4.0),0.002,OBJECT);
+			}
+			//cout << "box 2 has " << pc.size() << "particles" << endl;
+			ps->po.emplace_back(pc,OBJECT,Vec3f(0,0,-4),Vec3f(0,0,v2),Vec3f(0,0,0));
+		}
 	glPopMatrix();
 
+	if(!particlized) particlized = true;//set flag to true
+	else {
+		auto b = ps->po.begin();
+		auto e = ps->po.end();
+		while(b!=e){
+			b->update_particle();
+			b++;
+		}
+	}
 
 
+	elapsed_time += FRAME_PERIOD;
 	//*** DON'T FORGET TO PUT THIS IN YOUR OWN CODE **/
-	endDraw();
+	//endDraw();
 }
 
 void Particlize(){
@@ -158,81 +193,6 @@ void base(float h) {
 	glScalef(4.0f, h, 4.0f);
 	y_box(1.0f);
 	glPopMatrix();
-}
-
-void rotation_base(float h) {
-	setDiffuseColor( 0.85, 0.75, 0.25 );
-	setAmbientColor( 0.95, 0.75, 0.25 );
-	glPushMatrix();
-		glPushMatrix();
-			glScalef(4.0, h, 4.0);
-			y_box(1.0f); // the rotation base
-		glPopMatrix();
-		setDiffuseColor( 0.15, 0.15, 0.65 );
-		setAmbientColor( 0.15, 0.15, 0.65 );
-		glPushMatrix();
-			glTranslatef(-0.5, h, -0.6);
-			glScalef(2.0, h, 1.6);
-			y_box(1.0f); // the console
-		glPopMatrix();
-		setDiffuseColor( 0.65, 0.65, 0.65 );
-		setAmbientColor( 0.65, 0.65, 0.65 );
-		glPushMatrix();
-			glTranslatef( 0.5, h, 0.6 );
-			glRotatef( -90.0, 1.0, 0.0, 0.0 );
-			drawCylinder( h, 0.05, 0.05 ); // the pipe
-		glPopMatrix();
-	glPopMatrix();
-}
-
-void lower_arm(float h) {					// draw the lower arm
-	setDiffuseColor( 0.85, 0.75, 0.25 );
-	setAmbientColor( 0.95, 0.75, 0.25 );
-	y_box(h);
-}
-
-void upper_arm(float h) {					// draw the upper arm
-	setDiffuseColor( 0.85, 0.75, 0.25 );
-	setAmbientColor( 0.95, 0.75, 0.25 );
-	glPushMatrix();
-	glScalef( 1.0, 1.0, 0.7 );
-	y_box(h);
-	glPopMatrix();
-}
-
-void claw(float h) {
-	setDiffuseColor( 0.25, 0.25, 0.85 );
-	setAmbientColor( 0.25, 0.25, 0.85 );
-
-	glBegin( GL_TRIANGLES );
-
-	glNormal3d( 0.0, 0.0, 1.0);		// +z side
-	glVertex3d( 0.5, 0.0, 0.5);
-	glVertex3d(-0.5, 0.0, 0.5);
-	glVertex3d( 0.5,   h, 0.5);
-
-	glNormal3d( 0.0, 0.0, -1.0);	// -z side
-	glVertex3d( 0.5, 0.0, -0.5);
-	glVertex3d(-0.5, 0.0, -0.5);
-	glVertex3d( 0.5,   h, -0.5);
-
-	glEnd();
-
-	glBegin( GL_QUADS );
-
-	glNormal3d( 1.0,  0.0,  0.0);	// +x side
-	glVertex3d( 0.5, 0.0,-0.5);
-	glVertex3d( 0.5, 0.0, 0.5);
-	glVertex3d( 0.5,   h, 0.5);
-	glVertex3d( 0.5,   h,-0.5);
-
-	glNormal3d( 0.0,-1.0, 0.0);		// -y side
-	glVertex3d( 0.5, 0.0, 0.5);
-	glVertex3d( 0.5, 0.0,-0.5);
-	glVertex3d(-0.5, 0.0,-0.5);
-	glVertex3d(-0.5, 0.0, 0.5);
-
-	glEnd();
 }
 
 void y_box(float h) {
@@ -280,22 +240,19 @@ void y_box(float h) {
 
 int main()
 {
-    ModelerControl controls[NUMCONTROLS ];
-
-	controls[BASE_ROTATION] = ModelerControl("base rotation (theta)", -180.0, 180.0, 0.1, 0.0 );
-    controls[LOWER_TILT] = ModelerControl("lower arm tilt (phi)", 15.0, 95.0, 0.1, 55.0 );
-    controls[UPPER_TILT] = ModelerControl("upper arm tilt (psi)", 0.0, 135.0, 0.1, 30.0 );
-	controls[CLAW_ROTATION] = ModelerControl("claw rotation (cr)", -30.0, 180.0, 0.1, 0.0 );
-    controls[BASE_LENGTH] = ModelerControl("base height (h1)", 0.5, 10.0, 0.1, 0.8 );
-    controls[LOWER_LENGTH] = ModelerControl("lower arm length (h2)", 1, 10.0, 0.1, 3.0 );
-    controls[UPPER_LENGTH] = ModelerControl("upper arm length (h3)", 1, 10.0, 0.1, 2.5 );
-    controls[PARTICLE_COUNT] = ModelerControl("particle count (pc)", 0.0, 5.0, 0.1, 5.0 );
+	ModelerControl controls[NUMCONTROLS ];
+	
+	controls[BOX1_VEL]	= ModelerControl("box1 initial velocity (v1)", 0, 5, 0.1, 1.0 );
+	controls[BOX2_VEL]	= ModelerControl("box2 initial velocity (v2)", 0, 5, 0.1, 1.0 );
+	controls[PARTICLE_COUNT]= ModelerControl("particle count (pc)", 0.0, 5.0, 0.1, 5.0 );
     
 
 	// You should create a ParticleSystem object ps here and then
 	// call ModelerApplication::Instance()->SetParticleSystem(ps)
 	// to hook it up to the animator interface.
 
+	ps = new ParticleSystem();
+	ModelerApplication::Instance()->SetParticleSystem(ps);
     ModelerApplication::Instance()->Init(&createRobotArm, controls, NUMCONTROLS);
     return ModelerApplication::Instance()->Run();
 }

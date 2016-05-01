@@ -67,7 +67,7 @@ public:
 	bool isDirty() { return dirty; }
 	void setDirty(bool d) { dirty = d; }
 
-	std::vector<Particle> p;
+	std::vector<ParticleObject> po;
 	std::vector<Particle_Frame> bakeframe;
 	bool baked;
 

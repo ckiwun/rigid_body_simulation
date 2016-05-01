@@ -22,7 +22,7 @@ ALL.O = bitmap.o camera.o color.o curve.o curveevaluator.o \
 	beziercurveevaluator.o bsplinecurveevaluator.o \
         modelerapp.o modelerdraw.o modelerui.o animatoruiwindows.o \
         modelerview.o particleSystem.o point.o \
-        rect.o tank.o rulerwindow.o particle.o
+        rect.o box.o rulerwindow.o particle.o
  
 animator: $(ALL.O)
 	$(CC) $(CFLAGS) -o $@ $(ALL.O) $(INCLUDE) $(LIBDIR) $(LIBS)
