@@ -242,8 +242,8 @@ int main()
 {
 	ModelerControl controls[NUMCONTROLS ];
 	
-	controls[BOX1_VEL]	= ModelerControl("box1 initial velocity (v1)", 0, 5, 0.1, 1.0 );
-	controls[BOX2_VEL]	= ModelerControl("box2 initial velocity (v2)", 0, 5, 0.1, 1.0 );
+	controls[BOX1_VEL]	= ModelerControl("box1 initial velocity (v1)", 0, 5, 0.1, 2.0 );
+	controls[BOX2_VEL]	= ModelerControl("box2 initial velocity (v2)", 0, 5, 0.1, 2.0 );
 	controls[PARTICLE_COUNT]= ModelerControl("particle count (pc)", 0.0, 5.0, 0.1, 5.0 );
     
 
