@@ -84,6 +84,37 @@ void ParticleSystem::resetSimulation(float t)
 /** Compute forces and update particles **/
 void ParticleSystem::computeForcesAndUpdateParticles(float t)
 {
+	if(po.empty()) return;
+	auto po_b = po.begin();
+	auto po_e = po.end();
+	int stride = 1;
+	cout << boolalpha << po_b->has_collide << endl;
+	while(po_b!=po_e){
+		auto b = po_b->pc.begin();
+		auto e = po_b->pc.end();
+		auto comp_po = po_b + stride;
+		while(comp_po!=po_e){
+			while(b!=e){
+				auto comp_b = comp_po->pc.begin();
+				auto comp_e = comp_po->pc.end();
+				while(comp_b!=comp_e){
+					double distance = (b->pos - comp_b->pos).length();
+					if((distance<2*0.25)&&(!po_b->has_collide)) {
+						po_b->has_collide = true;
+						comp_po->has_collide = true;
+						po_b->c_vel = -0.8*po_b->c_vel;
+						comp_po->c_vel = -0.8*comp_po->c_vel;
+					}
+					comp_b++;
+				}
+				b++;
+			}
+			stride++;
+			comp_po = po_b + stride;
+		}
+		po_b++;
+		stride = 1;
+	}
 	//if(!simulate||baked) return;
 	//auto b = p.begin();
 	//auto e = p.end();
@@ -119,7 +150,6 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 /** Render particles */
 void ParticleSystem::drawParticles(float t)
 {
-	cout << po.size() << endl;
 	if(po.empty()) return;
 	auto po_b = po.begin();
 	auto po_e = po.end();

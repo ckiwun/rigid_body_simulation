@@ -19,12 +19,12 @@ Particle_Frame::Particle_Frame(const std::vector<Particle> new_p,const float& ne
 
 }
 
-ParticleObject::ParticleObject(ParticleObject const& that):pc(that.pc),type(that.type),c_pos(that.c_pos),c_vel(that.c_vel),ang_vel(that.ang_vel)
+ParticleObject::ParticleObject(ParticleObject const& that):pc(that.pc),type(that.type),c_pos(that.c_pos),c_vel(that.c_vel),ang_vel(that.ang_vel),has_collide(false)
 {
 
 }
 
-ParticleObject::ParticleObject(std::vector<Particle> const& t_pc,int const& t_type,Vec3f const& t_c_pos, Vec3f const& t_c_vel, Vec3f const& t_ang_vel):pc(t_pc),type(t_type),c_pos(t_c_pos),c_vel(t_c_vel),ang_vel(t_ang_vel)
+ParticleObject::ParticleObject(std::vector<Particle> const& t_pc,int const& t_type,Vec3f const& t_c_pos, Vec3f const& t_c_vel, Vec3f const& t_ang_vel):pc(t_pc),type(t_type),c_pos(t_c_pos),c_vel(t_c_vel),ang_vel(t_ang_vel),has_collide(false)
 {
 
 }

@@ -127,7 +127,7 @@ void RobotArm::draw()
 	glPushMatrix();
 		glTranslatef(0.0,0.0,-v1*elapsed_time);
 		glTranslatef(0.0,0.0,4.0);
-		base(2.0);
+		//base(2.0);
 		if(!particlized){ //push particleobject
 			std::vector<Particle> pc;
 			for(float z=-1.0;z<=1.0;z+=0.5)
@@ -142,7 +142,7 @@ void RobotArm::draw()
 	glPushMatrix();
 		glTranslatef(0.0,0.0,v2*elapsed_time);
 		glTranslatef(0.0,0.0,-4.0);
-		base(2.0);
+		//base(2.0);
 		if(!particlized){ //push particleobject
 			std::vector<Particle> pc;
 			for(float z=-1.0;z<=1.0;z+=0.5)

@@ -39,6 +39,7 @@ public:
 	Vec3f c_pos;//center position
 	Vec3f c_vel;//center velocity
 	Vec3f ang_vel;//angular velocity
+	bool has_collide;
 	double last_update_time;
 
 	void update_particle(void);
