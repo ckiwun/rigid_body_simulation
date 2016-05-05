@@ -35,6 +35,7 @@ void ParticleObject::update_particle(void)
 	auto e = pc.end();
 	while(b!=e){
 		b->pos = b->pos + this->c_vel*(1.0f/30.0f);
+		c_pos = c_pos + this->c_vel*(1.0f/30.0f);
 		b++;
 	}
 }

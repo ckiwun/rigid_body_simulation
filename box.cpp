@@ -125,9 +125,13 @@ void RobotArm::draw()
 
 	ground(-0.2);
 	glPushMatrix();
-		glTranslatef(0.0,0.0,-v1*elapsed_time);
-		glTranslatef(0.0,0.0,4.0);
-		//base(2.0);
+		//glTranslatef(0.0,0.0,-v1*elapsed_time);
+		//glTranslatef(0.0,0.0,4.0);
+		if(particlized) {
+			glTranslatef(ps->po[0].c_vel[0]*elapsed_time,ps->po[0].c_vel[1]*elapsed_time,ps->po[0].c_vel[2]*elapsed_time);
+			glTranslatef(ps->po[0].c_pos[0],ps->po[0].c_pos[1],ps->po[0].c_pos[2]);
+		}
+		base(2.0);
 		if(!particlized){ //push particleobject
 			std::vector<Particle> pc;
 			for(float z=-1.0;z<=1.0;z+=0.5)
@@ -140,9 +144,13 @@ void RobotArm::draw()
 		}
 	glPopMatrix();
 	glPushMatrix();
-		glTranslatef(0.0,0.0,v2*elapsed_time);
-		glTranslatef(0.0,0.0,-4.0);
-		//base(2.0);
+		//glTranslatef(0.0,0.0,v2*elapsed_time);
+		//glTranslatef(0.0,0.0,-4.0);
+		if(particlized) {
+			glTranslatef(ps->po[1].c_vel[0]*elapsed_time,ps->po[1].c_vel[1]*elapsed_time,ps->po[1].c_vel[2]*elapsed_time);
+			glTranslatef(ps->po[1].c_pos[0],ps->po[1].c_pos[1],ps->po[1].c_pos[2]);
+		}
+		base(2.0);
 		if(!particlized){ //push particleobject
 			std::vector<Particle> pc;
 			for(float z=-1.0;z<=1.0;z+=0.5)
