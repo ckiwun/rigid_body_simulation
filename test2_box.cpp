@@ -135,10 +135,10 @@ void RobotArm::draw()
 			for(float z=-1.0;z<=1.0;z+=0.5)
 			for(float y=-1.0;y<=1.0;y+=0.5)
 			for(float x=-1.0;x<=1.0;x+=0.5){
-				pc.emplace_back(Vec3f(x,y+1.0,z+4.0),0.002,OBJECT);
+				pc.emplace_back(Vec3f(x,y+1.0+10,z+4.0),0.002,OBJECT);
 			}
 			//cout << "box 1 has " << pc.size() << "particles" << endl;
-			ps->po.emplace_back(pc,OBJECT,Vec3f(0,0,4),Vec3f(0,0,-v1),Vec3f(0,0,0));
+			ps->po.emplace_back(pc,OBJECT,Vec3f(0,10,4),Vec3f(0,0,-v1),Vec3f(0,0,0));
 		}
 	glPopMatrix();
 	glPushMatrix();
@@ -152,10 +152,10 @@ void RobotArm::draw()
 			for(float z=-1.0;z<=1.0;z+=0.5)
 			for(float y=-1.0;y<=1.0;y+=0.5)
 			for(float x=-1.0;x<=1.0;x+=0.5){
-				pc.emplace_back(Vec3f(x,y+1.0,z-4.0),0.002,OBJECT);
+				pc.emplace_back(Vec3f(x,y+1.0+10,z-4.0),0.002,OBJECT);
 			}
 			//cout << "box 2 has " << pc.size() << "particles" << endl;
-			ps->po.emplace_back(pc,OBJECT,Vec3f(0,0,-4),Vec3f(0,0,v2),Vec3f(0,0,0));
+			ps->po.emplace_back(pc,OBJECT,Vec3f(0,10,-4),Vec3f(0,0,v2),Vec3f(0,0,0));
 		}
 	glPopMatrix();
 

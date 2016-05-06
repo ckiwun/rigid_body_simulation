@@ -115,6 +115,18 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 		po_b++;
 		stride = 1;
 	}
+	//update center velocity
+	po_b = po.begin();
+	while(po_b!=po_e){
+		//if(po_b->c_pos[1]<0.1&&(po_b->c_pos[0]<50)&&(po_b->c_pos[0]>-50)&&(po_b->c_pos[2]<50)&&(po_b->c_pos[2]>-50)){
+		//	po_b->c_vel[1] = -0.6 * po_b->c_vel[1];
+		//	po_b->c_vel[0] =  0.6 * po_b->c_vel[0];
+		//	po_b->c_vel[2] =  0.6 * po_b->c_vel[2];
+		//}
+		//else
+		po_b->c_vel = po_b->c_vel + Vec3f(0.0,-9.8,0.0) * (t-prevT);
+		po_b++;
+	}
 	//if(!simulate||baked) return;
 	//auto b = p.begin();
 	//auto e = p.end();
