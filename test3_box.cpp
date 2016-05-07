@@ -149,32 +149,6 @@ void RobotArm::draw()
 			ps->po.emplace_back(pc,OBJECT,Vec3f(0,1+10,5),Vec3f(0,0,-v1),Vec4f(1,0,0,0),Vec3f(0,1,0));
 		}
 	glPopMatrix();
-	glPushMatrix();
-		//if(particlized) {
-		//	glTranslatef(ps->po[1].c_vel[0]*elapsed_time,ps->po[1].c_vel[1]*elapsed_time,ps->po[1].c_vel[2]*elapsed_time);
-		//	glTranslatef(ps->po[1].c_pos[0],ps->po[1].c_pos[1],ps->po[1].c_pos[2]);
-		//}
-		//base(2.0);
-		if(!particlized){ //push particleobject
-			std::vector<Particle> pc;
-			for(float z=-1.0;z<=1.0;z+=0.5)
-			for(float y=-1.0;y<=1.0;y+=0.5)
-			for(float x=-1.0;x<=1.0;x+=0.5){
-				Vec3f normal;
-				if(x==-1) normal += Vec3f(-1,0,0);
-				if(x== 1) normal += Vec3f( 1,0,0);
-				if(y==-1) normal += Vec3f(0,-1,0);
-				if(y== 1) normal += Vec3f(0, 1,0);
-				if(z==-1) normal += Vec3f(0,0,-1);
-				if(z== 1) normal += Vec3f(0,0, 1);
-				normal.normalize();
-				pc.emplace_back(Vec3f(x,y+1.0+10,z-5.0),0.002,normal,OBJECT);
-			}
-			//cout << "box 2 has " << pc.size() << "particles" << endl;
-			ps->po.emplace_back(pc,OBJECT,Vec3f(0,1+10,-5),Vec3f(0,0,v2),Vec4f(1,0,0,0),Vec3f(0,1,0));
-		}
-	glPopMatrix();
-
 	if(!particlized) particlized = true;//set flag to true
 	else {
 		auto b = ps->po.begin();

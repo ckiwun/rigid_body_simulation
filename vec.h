@@ -444,7 +444,7 @@ public:
 	template <class U> friend Vec4<T> operator *( const Mat4<T>& a, const Vec4<T>& v );
 //	template <class U> friend Vec4<T> operator *( const Vec4<T>& v, const Mat4<T>& a );
 	template <class U> friend Vec4<T> operator /( const Vec4<T>& a, const double d );
-//	template <class U> friend Vec4<T> operator ^( const Vec4<T>& a, const Vec4<T>& b );
+	template <class U> friend Vec4<T> operator ^( const Vec4<T>& a, const Vec4<T>& b );
 	template <class U> friend bool operator ==( const Vec4<T>& a, const Vec4<T>& b );
 	template <class U> friend bool operator !=( const Vec4<T>& a, const Vec4<T>& b );
 	template <class U> friend std::ostream& operator <<( std::ostream& os, const Vec4<T>& v );
@@ -932,6 +932,15 @@ template <class T>
 inline Vec4<T> operator /(const Vec4<T>& a, const double d) {
 	return Vec4<T>( a[0] / d, a[1] / d, a[2] / d, a[3] / d );
 }
+
+template <class T>
+inline Vec4<T> operator ^(const Vec4<T>& a, const Vec4<T>& b) {
+	return Vec4<T>( a[0]*b[0]-a[1]*b[1]-a[2]*b[2]-a[3]*b[3],
+			a[0]*b[1]+a[1]*b[0]-a[2]*b[3]-a[3]*b[2],
+			a[0]*b[2]+b[0]*a[2]-a[1]*b[3]+b[1]*a[3],
+			a[0]*b[3]+b[0]*a[3]+a[1]*b[2]-b[1]*a[2]);
+}
+
 
 template <class T>
 inline bool operator ==(const Vec4<T>& a, const Vec4<T>& b) {

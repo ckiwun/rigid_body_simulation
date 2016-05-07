@@ -12,6 +12,8 @@
 #include <cassert>
 #include <cmath>
 
+#define PC_INDEX(x,y,z) x+y*5+z*25
+
 using namespace std;
 
 static float prevT;
@@ -106,12 +108,22 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 						Vec3f po_tangent = po_b->c_vel - po_normal;
 						Vec3f comp_normal = (comp_po->c_vel*normal_unitvec)*normal_unitvec;
 						Vec3f comp_tangent = comp_po->c_vel - comp_normal;
+						Vec3f delta_po = 1.8 * po_normal;
+						Vec3f delta_comp = 1.8 * comp_normal;
 						po_normal = -0.8 * po_normal;
 						comp_normal = -0.8 * comp_normal;
 						po_tangent = 0.8 * po_tangent;
 						comp_tangent = 0.8 * comp_tangent;
 						po_b->c_vel = po_normal + po_tangent;
 						comp_po->c_vel = comp_normal + comp_tangent;
+						
+						Vec3f col_normal = b->normal-comp_b->normal;
+						col_normal.normalize();
+						Vec3f col_force = 0.25 * 30 * 1.8 * po_normal;
+						Vec3f comp_r = comp_po->c_pos - comp_b->pos;
+						comp_po->ang_vel += (col_force^comp_r)*(1.0f/30.f);//not evaluate inertia tensor yet, assume 100
+						Vec3f po_r = po_b->c_pos - b->pos;
+						po_b->ang_vel += ((-col_force)^po_r)*(1.0f/30.f);
 						po_b->update_particle();
 						comp_po->update_particle();
 					}
@@ -135,6 +147,7 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 			po_normal = -0.8 * po_normal;
 			po_tangent = 0.8 * po_tangent;//friction
 			po_b->c_vel = po_normal + po_tangent;
+			po_b->ang_vel *= 0.8;
 			po_b->update_particle();
 		}
 		
