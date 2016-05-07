@@ -99,11 +99,21 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 				auto comp_e = comp_po->pc.end();
 				while(comp_b!=comp_e){
 					double distance = (b->pos - comp_b->pos).length();
-					if((distance<2*0.25)&&(!po_b->has_collide)) {
-						po_b->has_collide = true;
-						comp_po->has_collide = true;
-						po_b->c_vel = -0.8*po_b->c_vel;
-						comp_po->c_vel = -0.8*comp_po->c_vel;
+					if(distance<2*0.25) {
+						Vec3f normal_unitvec = po_b->c_pos-comp_po->c_pos;
+						normal_unitvec.normalize();
+						Vec3f po_normal = (po_b->c_vel*(-normal_unitvec))*(-normal_unitvec);
+						Vec3f po_tangent = po_b->c_vel - po_normal;
+						Vec3f comp_normal = (comp_po->c_vel*normal_unitvec)*normal_unitvec;
+						Vec3f comp_tangent = comp_po->c_vel - comp_normal;
+						po_normal = -0.8 * po_normal;
+						comp_normal = -0.8 * comp_normal;
+						po_tangent = 0.8 * po_tangent;
+						comp_tangent = 0.8 * comp_tangent;
+						po_b->c_vel = po_normal + po_tangent;
+						comp_po->c_vel = comp_normal + comp_tangent;
+						po_b->update_particle();
+						comp_po->update_particle();
 					}
 					comp_b++;
 				}
@@ -118,13 +128,24 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	//update center velocity
 	po_b = po.begin();
 	while(po_b!=po_e){
-		//if(po_b->c_pos[1]<0.1&&(po_b->c_pos[0]<50)&&(po_b->c_pos[0]>-50)&&(po_b->c_pos[2]<50)&&(po_b->c_pos[2]>-50)){
-		//	po_b->c_vel[1] = -0.6 * po_b->c_vel[1];
-		//	po_b->c_vel[0] =  0.6 * po_b->c_vel[0];
-		//	po_b->c_vel[2] =  0.6 * po_b->c_vel[2];
-		//}
-		//else
+		if(po_b->c_pos[1]-1<0){//ground
+			Vec3f normal_unitvec(0,-1,0);
+			Vec3f po_normal = (po_b->c_vel*normal_unitvec)*normal_unitvec;
+			Vec3f po_tangent = po_b->c_vel - po_normal;
+			po_normal = -0.8 * po_normal;
+			po_tangent = 0.8 * po_tangent;//friction
+			po_b->c_vel = po_normal + po_tangent;
+			po_b->update_particle();
+		}
+		
 		po_b->c_vel = po_b->c_vel + Vec3f(0.0,-9.8,0.0) * (t-prevT);
+		cout << "vel is " << po_b->c_vel << endl;
+		po_b++;
+	}
+	po_b = po.begin();
+	while(po_b!=po_e){
+		if((po_b->c_pos[0]>50)||(po_b->c_pos[0]<-50)||(po_b->c_pos[2]>50)||(po_b->c_pos[2]<-50))
+			po.erase(po_b);
 		po_b++;
 	}
 	//if(!simulate||baked) return;
