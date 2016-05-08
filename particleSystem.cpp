@@ -112,8 +112,8 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 						Vec3f delta_comp = 1.8 * comp_normal;
 						po_normal = -0.8 * po_normal;
 						comp_normal = -0.8 * comp_normal;
-						po_tangent = 0.8 * po_tangent;
-						comp_tangent = 0.8 * comp_tangent;
+						//po_tangent = 0.8 * po_tangent;
+						//comp_tangent = 0.8 * comp_tangent;
 						po_b->c_vel = po_normal + po_tangent;
 						comp_po->c_vel = comp_normal + comp_tangent;
 						
@@ -121,7 +121,7 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 						col_normal.normalize();
 						Vec3f col_force = 0.25 * 30 * 1.8 * po_normal;
 						Vec3f comp_r = comp_po->c_pos - comp_b->pos;
-						comp_po->ang_vel += (col_force^comp_r)*(1.0f/30.f);//not evaluate inertia tensor yet, assume 100
+						comp_po->ang_vel += (col_force^comp_r)*(1.0f/30.f);//not evaluate inertia tensor yet, assume 1
 						Vec3f po_r = po_b->c_pos - b->pos;
 						po_b->ang_vel += ((-col_force)^po_r)*(1.0f/30.f);
 						po_b->update_particle();
@@ -140,13 +140,28 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	//update center velocity
 	po_b = po.begin();
 	while(po_b!=po_e){
-		if(po_b->c_pos[1]-1<0){//ground
+		auto b = po_b->pc.begin();
+		auto e = po_b->pc.end();
+		float min_y = 10;
+		Vec3f contact_point;
+		while(b!=e){
+			if(b->pos[1]<min_y){
+				contact_point = b->pos;
+				min_y = b->pos[1];
+			}
+			b++;
+		}
+		cout << "hello: " << min_y << endl;
+		if(min_y<0){//ground
 			Vec3f normal_unitvec(0,-1,0);
 			Vec3f po_normal = (po_b->c_vel*normal_unitvec)*normal_unitvec;
 			Vec3f po_tangent = po_b->c_vel - po_normal;
-			po_normal = -0.8 * po_normal;
-			po_tangent = 0.8 * po_tangent;//friction
+			po_normal = -0.6 * po_normal;
+			po_tangent = 0.6 * po_tangent;//friction
 			po_b->c_vel = po_normal + po_tangent;
+			Vec3f col_force = 0.25 * 30 * 1.6 * po_normal;
+			Vec3f po_r = po_b->c_pos - contact_point;
+			//po_b->ang_vel += ((-col_force)^po_r)*(1.0f/30.f);
 			po_b->ang_vel *= 0.8;
 			po_b->update_particle();
 		}
@@ -155,12 +170,12 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 		cout << "vel is " << po_b->c_vel << endl;
 		po_b++;
 	}
-	po_b = po.begin();
-	while(po_b!=po_e){
-		if((po_b->c_pos[0]>50)||(po_b->c_pos[0]<-50)||(po_b->c_pos[2]>50)||(po_b->c_pos[2]<-50))
-			po.erase(po_b);
-		po_b++;
-	}
+	//po_b = po.begin();
+	//while(po_b!=po_e){
+	//	if((po_b->c_pos[0]>50)||(po_b->c_pos[0]<-50)||(po_b->c_pos[2]>50)||(po_b->c_pos[2]<-50))
+	//		po.erase(po_b);
+	//	po_b++;
+	//}
 	//if(!simulate||baked) return;
 	//auto b = p.begin();
 	//auto e = p.end();
