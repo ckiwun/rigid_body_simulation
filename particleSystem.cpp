@@ -13,6 +13,9 @@
 #include <cmath>
 
 #define PC_INDEX(x,y,z) x+y*5+z*25
+#define Vec3ftoElem(x)	x[0],x[1],x[2]
+//#define SHOW_PARTICLE 1
+#define SHOW_BOX 1
 
 using namespace std;
 
@@ -90,7 +93,6 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	auto po_b = po.begin();
 	auto po_e = po.end();
 	int stride = 1;
-	cout << boolalpha << po_b->has_collide << endl;
 	while(po_b!=po_e){
 		auto b = po_b->pc.begin();
 		auto e = po_b->pc.end();
@@ -112,8 +114,6 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 						Vec3f delta_comp = 1.8 * comp_normal;
 						po_normal = -0.8 * po_normal;
 						comp_normal = -0.8 * comp_normal;
-						//po_tangent = 0.8 * po_tangent;
-						//comp_tangent = 0.8 * comp_tangent;
 						po_b->c_vel = po_normal + po_tangent;
 						comp_po->c_vel = comp_normal + comp_tangent;
 						
@@ -143,15 +143,16 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 		auto b = po_b->pc.begin();
 		auto e = po_b->pc.end();
 		float min_y = 10;
+		int neg_count = 0;
 		Vec3f contact_point;
 		while(b!=e){
+			if(b->pos[1]<0) neg_count++;
 			if(b->pos[1]<min_y){
 				contact_point = b->pos;
 				min_y = b->pos[1];
 			}
 			b++;
 		}
-		cout << "hello: " << min_y << endl;
 		if(min_y<0){//ground
 			Vec3f normal_unitvec(0,-1,0);
 			Vec3f po_normal = (po_b->c_vel*normal_unitvec)*normal_unitvec;
@@ -159,15 +160,16 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 			po_normal = -0.6 * po_normal;
 			po_tangent = 0.6 * po_tangent;//friction
 			po_b->c_vel = po_normal + po_tangent;
-			Vec3f col_force = 0.25 * 30 * 1.6 * po_normal;
+			//Vec3f col_force = 0.25 * 30 * 1.6 * po_normal;
+			Vec3f col_force;
+			if(neg_count<4)col_force = Vec3f(0, 0.25 * 9.8, 0);
 			Vec3f po_r = po_b->c_pos - contact_point;
-			//po_b->ang_vel += ((-col_force)^po_r)*(1.0f/30.f);
+			po_b->ang_vel += (col_force^po_r)*(1.0f/30.f);
 			po_b->ang_vel *= 0.8;
 			po_b->update_particle();
 		}
 		
-		po_b->c_vel = po_b->c_vel + Vec3f(0.0,-9.8,0.0) * (t-prevT);
-		cout << "vel is " << po_b->c_vel << endl;
+		if(min_y>0)po_b->c_vel = po_b->c_vel + Vec3f(0.0,-9.8,0.0) * (t-prevT);
 		po_b++;
 	}
 	//po_b = po.begin();
@@ -215,6 +217,7 @@ void ParticleSystem::drawParticles(float t)
 	auto po_b = po.begin();
 	auto po_e = po.end();
 	while(po_b!=po_e){
+		#ifdef SHOW_PARTICLE
 		setDiffuseColor( 0.4, 0.2, 0.0 );
 		setAmbientColor( 0.4, 0.2, 0.0 );
 		auto b = po_b->pc.begin();
@@ -227,6 +230,74 @@ void ParticleSystem::drawParticles(float t)
 			glPopMatrix();
 			b++;
 		}
+		#endif
+		#ifdef SHOW_BOX
+		cout << "draw box " << endl;
+		setDiffuseColor( 0.2, 0.2, 0.2 );
+		setAmbientColor( 0.2, 0.2, 0.2 );
+		Vec3f v0 = po_b->pc[PC_INDEX(0,0,0)].pos;
+		Vec3f v1 = po_b->pc[PC_INDEX(4,0,0)].pos;
+		Vec3f v2 = po_b->pc[PC_INDEX(0,4,0)].pos;
+		Vec3f v3 = po_b->pc[PC_INDEX(4,4,0)].pos;
+		Vec3f v4 = po_b->pc[PC_INDEX(0,0,4)].pos;
+		Vec3f v5 = po_b->pc[PC_INDEX(4,0,4)].pos;
+		Vec3f v6 = po_b->pc[PC_INDEX(0,4,4)].pos;
+		Vec3f v7 = po_b->pc[PC_INDEX(4,4,4)].pos;
+		Vec3f Normal;
+		glPushMatrix();
+			glBegin(GL_QUADS);
+			//+x
+			Normal = (v3-v1)^(v5-v1);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v1));
+			glVertex3d(Vec3ftoElem(v3));
+			glVertex3d(Vec3ftoElem(v7));
+			glVertex3d(Vec3ftoElem(v5));
+			//-x
+			Normal = (v4-v0)^(v2-v0);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v0));
+			glVertex3d(Vec3ftoElem(v4));
+			glVertex3d(Vec3ftoElem(v6));
+			glVertex3d(Vec3ftoElem(v2));
+			//+y
+			Normal = (v6-v2)^(v3-v2);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v2));
+			glVertex3d(Vec3ftoElem(v3));
+			glVertex3d(Vec3ftoElem(v7));
+			glVertex3d(Vec3ftoElem(v6));
+			//-y
+			Normal = (v1-v0)^(v4-v0);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v0));
+			glVertex3d(Vec3ftoElem(v1));
+			glVertex3d(Vec3ftoElem(v5));
+			glVertex3d(Vec3ftoElem(v4));
+			//+z
+			Normal = (v5-v4)^(v6-v4);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v4));
+			glVertex3d(Vec3ftoElem(v5));
+			glVertex3d(Vec3ftoElem(v7));
+			glVertex3d(Vec3ftoElem(v6));
+			//-z
+			Normal = (v0-v1)^(v3-v1);
+			Normal.normalize();
+			glNormal3d(Vec3ftoElem(Normal));
+			glVertex3d(Vec3ftoElem(v0));
+			glVertex3d(Vec3ftoElem(v2));
+			glVertex3d(Vec3ftoElem(v3));
+			glVertex3d(Vec3ftoElem(v1));
+
+			glEnd();
+		glPopMatrix();
+		#endif
 		po_b++;
 	}
 	//if(!simulate&&!baked) return;

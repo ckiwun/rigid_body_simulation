@@ -121,12 +121,11 @@ void RobotArm::draw()
 	static GLfloat lmodel_ambient[] = {0.4,0.4,0.4,1.0};
 
 	// define the model
-	cout << "elapsed time is " << elapsed_time << endl;
-
 	ground(-0.2);
 	glPushMatrix();
 		//if(particlized) {
 		//	glTranslatef(ps->po[0].c_vel[0]*elapsed_time,ps->po[0].c_vel[1]*elapsed_time,ps->po[0].c_vel[2]*elapsed_time);
+		//	//glRotatef(ps->po[0].qt[0]*180/M_PI,ps->po[0].qt[1],ps->po[0].qt[2],ps->po[0].qt[3]);
 		//	glTranslatef(ps->po[0].c_pos[0],ps->po[0].c_pos[1],ps->po[0].c_pos[2]);
 		//}
 		//base(2.0);

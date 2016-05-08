@@ -121,8 +121,6 @@ void RobotArm::draw()
 	static GLfloat lmodel_ambient[] = {0.4,0.4,0.4,1.0};
 
 	// define the model
-	cout << "elapsed time is " << elapsed_time << endl;
-
 	ground(-0.2);
 	glPushMatrix();
 		//if(particlized) {

@@ -36,7 +36,6 @@ void ParticleObject::update_particle(void)
 	auto b = pc.begin();
 	auto e = pc.end();
 	Vec3f rotation_axis = this->ang_vel;
-	cout << "ang vel is " << this->ang_vel << endl;
 	if(rotation_axis.length2()!=0) rotation_axis.normalize();
 	float rotation_degree = (this->ang_vel*(1.0f/30.0f)).length();
 	this->qt = Vec4f(cos(rotation_degree/2),rotation_axis[0]*sin(rotation_degree/2),rotation_axis[1]*sin(rotation_degree/2),rotation_axis[2]*sin(rotation_degree/2));// ^ this->qt;
@@ -45,7 +44,6 @@ void ParticleObject::update_particle(void)
 	float q1 = this->qt[1];
 	float q2 = this->qt[2];
 	float q3 = this->qt[3];
-	cout << "qt is " << this->qt << endl;
 	Mat4f qt_rotate( 	1-2*q2*q2-2*q3*q3,	2*q1*q2-2*s*q3,		2*q1*q3+2*s*q2, 	0,
 				2*q1*q2+2*s*q3,		1-2*q1*q1-2*q3*q3,	2*q2*q3-2*s*q1,		0,
 				2*q1*q3-2*s*q2,		2*q2*q3+2*s*q1,		1-2*q1*q1-2*q2*q2,	0,
@@ -60,10 +58,12 @@ void ParticleObject::update_particle(void)
 	Mat4f mat_trans = Mat4f::createTranslation(delta[0],delta[1],delta[2]);
 	c_pos += this->c_vel*(1.0f/30.0f);
 	while(b!=e){
-		Vec3f temp1 = b->pos-this->c_pos-Vec3f(0,0,0);
+		Vec3f temp1 = b->pos-this->c_pos;
 		Vec4f temp2(temp1[0],temp1[1],temp1[2],1);
 		Vec4f temp3 = (qt_rotate * mat_trans)*(temp2);
-		b->pos = Vec3f(temp3[0],temp3[1],temp3[2]) + this->c_pos+Vec3f(0,0,0);
+		b->pos = Vec3f(temp3[0],temp3[1],temp3[2]) + this->c_pos;
 		b++;
 	}
+	cout << "cpos is " << c_pos << endl;
+	cout << "cvel is " << c_vel << endl;
 }
